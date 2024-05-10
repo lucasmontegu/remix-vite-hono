@@ -7,6 +7,15 @@ WORKDIR /app
 # Set production environment
 ENV NODE_ENV="production"
 
+FROM base as deps
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules /app/node_modules
+
+ADD . .
+RUN bun run build
+
 # Throw-away build stage to reduce size of final image
 FROM base as build
 
@@ -18,6 +27,16 @@ WORKDIR /app
 
 ADD package.json bun.lockb ./
 RUN bun install --ci
+
+# Setup production node_modules
+FROM base as production-deps
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules /app/node_modules
+
+ADD . .
+RUN bun run build
 
 # Finally, build the production image with minimal footprint
 FROM base
