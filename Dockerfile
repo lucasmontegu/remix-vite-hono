@@ -1,5 +1,8 @@
 # base bun image
-FROM bun/bun:latest AS base
+FROM oven/bun:1
+WORKDIR /app
+COPY . .
+RUN bun install
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
