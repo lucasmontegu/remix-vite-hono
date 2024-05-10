@@ -1,27 +1,37 @@
-FROM oven/bun:1
-WORKDIR /app
-COPY . .
-RUN bun install
+# base bun image
+FROM bun/bun:latest AS base
 
+# set for base and all layer that inherit from it
+ENV NODE_ENV production
+ENV PORT 8080
+
+# Install all node_modules, including dev dependencies
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json package.json
-RUN bun install
+COPY package.json .
+RUN bun install --production=false
 
-FROM base AS builder
+# Setup production node_modules
+FROM base AS production-deps
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN bun bun:build
+COPY --from=deps /app/node_modules /app/node_modules
+COPY package.json .
 RUN bun prune
 
-FROM base AS runner
+# Build the app
+FROM base AS build
 WORKDIR /app
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 remix
-COPY --from=builder /app .
-USER remix
-EXPOSE 3000
-ENV PORT 3000
+COPY --from=deps /app/node_modules /app/node_modules
+COPY . .
+RUN bun bun:build
+
+# Finally, build the production image with minimal footprint
+FROM base
+WORKDIR /app
+
+# You only need these for production
+COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
+COPY --from=build /app/package.json /app/package.json
+
 CMD ["bun", "start"]
