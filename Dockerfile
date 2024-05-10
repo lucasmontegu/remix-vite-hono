@@ -1,4 +1,4 @@
-ARG BUN_VERSION=1.0.29
+ARG BUN_VERSION=1.1.1
 FROM oven/bun:${BUN_VERSION}-slim as base
 
 # Bun app lives here
