@@ -19,16 +19,6 @@ WORKDIR /app
 ADD package.json bun.lockb ./
 RUN bun install --ci
 
-# Setup production node_modules
-FROM base as production-deps
-
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-
-ADD . .
-RUN bun run build
-
 # Finally, build the production image with minimal footprint
 FROM base
 
