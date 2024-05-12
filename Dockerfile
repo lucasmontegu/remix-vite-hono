@@ -1,6 +1,10 @@
 ARG BUN_VERSION=1.1.1
 FROM oven/bun:${BUN_VERSION}-slim as base
 
+# set for base and all layer that inherit from it
+ENV NODE_ENV production
+ENV PORT 8080
+
 # Bun app lives here
 WORKDIR /app
 
@@ -21,6 +25,7 @@ RUN bun run build
 
 # Production image with minimal footprint
 FROM base as production
+
 WORKDIR /app
 
 # Copy built artifacts and dependencies
