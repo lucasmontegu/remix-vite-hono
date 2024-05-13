@@ -1,40 +1,55 @@
-#FROM oven/bun:latest as base
-FROM imbios/bun-node:latest-current-slim as base
-LABEL fly_launch_runtime="Bun"
-
-# Bun app lives here
+# base node image
+FROM node:latest as base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . /app
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
+# set for base and all layer that inherit from it
+ENV NODE_ENV production
+ENV PORT 8080
 
-# Throw-away build stage to reduce size of final image
+# Install all node_modules, including dev dependencies
+FROM base as deps
+
+WORKDIR /app
+
+ADD package.json package-lock.json ./
+RUN pnpm install --include=dev
+
+# Setup production node_modules
+FROM base as production-deps
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules /app/node_modules
+ADD package.json package-lock.json ./
+RUN npm prune --omit=dev
+
+# Build the app
 FROM base as build
 
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
-
-# Install node modules
-COPY package.json bun.lockb ./
-RUN bun install --ci
-
-# Copy application code
-COPY . .
-
 WORKDIR /app
-RUN bun run build
 
-# Final stage for app image
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+COPY --from=deps /app/node_modules /app/node_modules
+
+ADD . .
+RUN pnpm run build
+
+# Finally, build the production image with minimal footprint
 FROM base
 
-# Copy built artifacts and dependencies
+WORKDIR /app
+
+# You only need these for production
+COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
-COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/package.json
 
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "bun", "run", "start" ]
+CMD [ "pnpm", "run", "start" ]
 
