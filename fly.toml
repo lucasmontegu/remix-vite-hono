@@ -1,0 +1,22 @@
+# fly.toml app configuration file generated for troper-holy-dust-8766 on 2024-05-13T00:11:02-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'troper-holy-dust-8766'
+primary_region = 'eze'
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
