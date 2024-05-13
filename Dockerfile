@@ -1,5 +1,4 @@
-ARG BUN_VERSION=1.1.1
-FROM oven/bun:${BUN_VERSION}-slim as base
+FROM oven/bun:canary-slim as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
@@ -33,7 +32,7 @@ COPY --from=build /app/build /app/build
 COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/package.json
 
-ARG PORT
-EXPOSE ${PORT:-3000}
+#ARG PORT
+#EXPOSE ${PORT:-3000}
 
 CMD ["bun", "run", "start"]
