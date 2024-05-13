@@ -1,4 +1,12 @@
 FROM oven/bun:canary-slim as base
+FROM node:lts-alpine as node
+
+# Set the working directory
+USER node
+WORKDIR /home/node
+
+COPY . .
+RUN npm ci
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
@@ -32,7 +40,7 @@ COPY --from=build /app/build /app/build
 COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/package.json
 
-#ARG PORT
-#EXPOSE ${PORT:-3000}
+ARG PORT
+EXPOSE ${PORT:-3000}
 
 CMD ["bun", "run", "start"]
