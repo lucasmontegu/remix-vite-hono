@@ -9,11 +9,12 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "NODE_ENV=production SESSION_SECRET=s3cr3t node ./build/server/index.js",
     "start:docker": "run-s docker:*",
-    "docker:build": "docker build -t remix-hono-vite-bun .",
-    "docker:run": "docker run --rm -d -p 8080:8080 --env-file .env remix-hono-vite-bun",
+    "docker:build": "docker build -t remix-hono-vite .",
+    "docker:run": "docker run --rm -d -p 8080:8080 --env-file .env remix-hono-vite",
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@hono/node-server": "^1.11.1",
     "@hono/vite-dev-server": "^0.12.1",
     "@hookform/resolvers": "^3.3.4",
     "@neondatabase/serverless": "^0.9.3",
