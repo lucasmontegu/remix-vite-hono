@@ -108,6 +108,7 @@ if (isProductionMode) {
     {
       ...app,
       port: Number(process.env.PORT) || 3000,
+      hostname: process.env.HOSTNAME || "0.0.0.0",
     },
     async (info) => {
       console.log(`🚀 Server started on port ${info.port}`);

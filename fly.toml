@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for troper-holy-dust-8766 on 2024-05-13T00:11:02-03:00
+# fly.toml app configuration file generated for troper on 2024-05-13T00:37:39-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'troper-holy-dust-8766'
+app = 'troper'
 primary_region = 'eze'
 
 [build]

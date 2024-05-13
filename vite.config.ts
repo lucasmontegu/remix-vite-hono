@@ -5,7 +5,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import devServer from "@hono/vite-dev-server";
 import esbuild from "esbuild"
 import { remixDevTools } from "remix-development-tools";
-/* import { flatRoutes } from "remix-flat-routes"; */
+import { flatRoutes } from "remix-flat-routes";
 
 installGlobals();
 
@@ -36,11 +36,10 @@ export default defineConfig({
     }),
     remixDevTools(),
     remix({
-      /* routes: async (defineRoutes) => {
-        return defineRoutes((route) => {
-          route("/", "app/routes/_index.tsx");
-        });
-      }, */
+      ignoredRouteFiles: ['**/*'],
+      routes: async defineRoutes => {
+        return flatRoutes('routes', defineRoutes)
+      },
       serverBuildFile: "remix.js",
       buildEnd: async () => {
         await esbuild
